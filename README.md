@@ -12,4 +12,4 @@ PASSWORD=
 run: ``python3 twittorGPT.py``
 
 # Customisation
-The main idea is that language model a tweet based on the set of topics and suggestions. That way you can manage the overall theme of your tweets.
+The main idea is that language model writes a tweet based on the set of topics and suggestions. That way you can manage the overall theme of your tweets.
