@@ -9,16 +9,16 @@ used_names = set()
 # Number of images you want to download
 num_images = 1000  # You can change this number as needed
 
-for _ in range(num_images):
+for i in range(num_images):
     # Generate a unique random name
     while True:
-        img_name = random.randint(1000, 9999)
+        img_name = i
         if img_name not in used_names:
             used_names.add(img_name)
             break
     
     # Construct the file path and URL
-    file_path = f"avatars/{img_name}.jpg"
+    file_path = f"avas/{img_name}.jpg"
     url = "https://thispersondoesnotexist.com"
     
     # Download and save the image
