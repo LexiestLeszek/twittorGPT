@@ -2,11 +2,36 @@ from playwright.sync_api import sync_playwright
 import time, json, random, re, os, requests
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, HardwareType, OperatingSystem
+from fp.fp import FreeProxy
 
-# it works up until capcha
+# it works up until capcha, possible solution - audiocapcha with ML capabilities
+# TODO: add logic to skip if capcha is unslved and start over (try-except stuff)
+
+def get_proxy():
+    proxy_url = FreeProxy().get()
+    proxy_object = {
+        "server": proxy_url,
+        "username": "",
+        "password": ""
+    }
+    
+    return proxy_object
 
 def random_user_agent():
-    return UserAgent(software_names=[SoftwareName.CHROME.value,SoftwareName.EDGE.value,SoftwareName.OPERA.value], hardware_types=[HardwareType.COMPUTER.value,HardwareType.MOBILE.value], limit=100).get_random_user_agent()
+    
+    # you can also import SoftwareEngine, HardwareType, SoftwareType, Popularity from random_user_agent.params
+    # you can also set number of user agents required by providing `limit` as parameter
+
+    software_names = [SoftwareName.CHROME.value]
+    operating_systems = [OperatingSystem.MAC.value,OperatingSystem.LINUX.value]
+    hardware_types = [HardwareType.COMPUTER.value,HardwareType.MOBILE.value]
+
+    user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems, hardware_types=hardware_types, limit=100)
+
+    # Get Random User Agent String.
+    user_agent = user_agent_rotator.get_random_user_agent()
+    
+    return user_agent
 
 def get_random_name():
     return json.loads(requests.get("https://api.namefake.com/").text)["name"]
@@ -32,9 +57,9 @@ def get_code(email):
         code = match.group()
         return code
 
-def create_twitter_account(name, email, month, day, year, password, avatar, agent):
+def create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy):
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=False)
+        browser = playwright.chromium.launch(headless=False,proxy=proxy)
         context = browser.new_context(user_agent=agent)
         page = context.new_page()
 
@@ -77,17 +102,51 @@ def create_twitter_account(name, email, month, day, year, password, avatar, agen
         
         
         # TODO: Click audio icon button
-        # ---- ALREADY TRIED:
         
+        # ------- ALREADY TRIED -------- :
         # button = page.locator('//*[@id="root"]/div/div[2]/button/img')
         # button = page.locator('div.sc-99cwso-0.sc-1cbf51e-0.gMEQEa.fLfntv.navigation.box')
         # button = page.locator('//*[@id="root"]/div/div[2]/button/p')
         # button = page.locator('//*[@id="root"]/div/div[2]/button')
         # button = page.query_selector('button.sc-rqvnx3-0.kTxXTj.audio-button.icon-button')
         # button = page.locator('audio-button')
+        # button = page.locator('.icon')
+        # button = page.locator('img')
+        # button = page.query_selector('[class*="audio"]')
+        # button = page.locator('//*[@id="root"]/div/div[2]/button')
+        # button.click(force=True)
+        # <button class="sc-rqvnx3-0 kTxXTj audio-button icon-button" aria-label="Audio"><img src="https://client-api.arkoselabs.com/cdn/fc/assets/style-manager/assets/e94ae91f-1774-408b-a8b3-1237915c996c.svg" alt=""><p font-size="0.625r" class="sc-1io4bok-0 eIWPBf text">Audio</p></button>
+        # button = page.query_selector('[class*="sc-rqvnx3-0.kTxXTj.audio-button.icon-button"]')
+        # button = page.locator('sc-rqvnx3-0.kTxXTj.audio-button.icon-button')
+        # button = page.locator('aria-label="Audio"')
+        # button = page.locator('e94ae91f-1774-408b-a8b3-1237915c996c.svg')
+        # button = page.locator('.img')
         
-        button.click()
+        #button = page.locator('button[href*="arkoselabs.com"]')
+        #button = page.get_by_role("button")
         
+        #button = page.get_by_title("Audio")
+        #button.click()
+        
+        #button = page.get_by_label("Audio")
+        # button.click()
+        
+        #button = page.get_by_placeholder("Audio")
+        #button.click()
+        
+        #page.get_by_role("button", name=re.compile("audio", re.IGNORECASE)).click(force=True)
+        
+        # page.get_by_alt_text("").click()
+        
+        # page.get_by_text(re.compile("audio", re.IGNORECASE)).click()
+        
+        # page.get_by_label("Audio").click()
+        
+        time.sleep(100)
+        "div.sc-99cwso-0.sc-1cbf51e-0.gMEQEa.fLfntv.navigation.box"
+        
+        
+    
         # https://client-api.arkoselabs.com/cdn/fc/assets/style-manager/assets/e94ae91f-1774-408b-a8b3-1237915c996c.svg
         
         
@@ -172,6 +231,9 @@ def create_twitter_account(name, email, month, day, year, password, avatar, agen
         browser.close()
 
 if __name__ == "__main__":
+    
+    proxy = get_proxy()
+    print(proxy)
         
     num_accounts = 3
     
@@ -185,7 +247,7 @@ if __name__ == "__main__":
         password = "kQafrt#145LL"
         avatar = f"./avatars/{i}"
         print(name,email,avatar)
-        create_twitter_account(name, email, month, day, year, password, avatar, agent)
+        create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy)
         creds = f"Account #{i},name: {name},email: {email},password: {password}\n"
         print(creds)
         with open("accounts.txt", 'w') as file:
