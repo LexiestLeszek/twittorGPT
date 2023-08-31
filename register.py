@@ -9,32 +9,25 @@ from fp.fp import FreeProxy
 
 def get_proxy():
     proxy_url = FreeProxy().get()
-    proxy_object = {
+    proxy_obj = {
         "server": proxy_url,
         "username": "",
         "password": ""
     }
     
-    return proxy_object
+    return proxy_obj
 
 def random_user_agent():
-    
-    # you can also import SoftwareEngine, HardwareType, SoftwareType, Popularity from random_user_agent.params
-    # you can also set number of user agents required by providing `limit` as parameter
 
-    software_names = [SoftwareName.CHROME.value]
-    operating_systems = [OperatingSystem.MAC.value,OperatingSystem.LINUX.value]
-    hardware_types = [HardwareType.COMPUTER.value,HardwareType.MOBILE.value]
-
-    user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems, hardware_types=hardware_types, limit=100)
-
-    # Get Random User Agent String.
-    user_agent = user_agent_rotator.get_random_user_agent()
+    user_agent = UserAgent(software_names=[SoftwareName.CHROME.value], hardware_types={HardwareType.COMPUTER.value}, limit=100).get_random_user_agent()
     
     return user_agent
 
 def get_random_name():
-    return json.loads(requests.get("https://api.namefake.com/").text)["name"]
+    person = json.loads(requests.get("https://api.namefake.com/").text)
+    person_name = person["name"]
+    person_psw = person["password"]
+    return person_name
 
 def get_email():
     with sync_playwright() as playwright:
@@ -56,11 +49,16 @@ def get_code(email):
         match = re.search(r'\b\d{6}\b', title)
         code = match.group()
         return code
+    
+def get_phone():
+    phone = ""
+    return phone
 
 def create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy):
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=False,proxy=proxy)
-        context = browser.new_context(user_agent=agent)
+        #context = browser.new_context()
+        context = browser.new_context(user_agent=agent) # would make sense to add user agent later
         page = context.new_page()
 
         page.goto('https://twitter.com/i/flow/signup')  # Twitter homepage URL
@@ -246,9 +244,10 @@ if __name__ == "__main__":
         year = random.choice(["1981","1983","1984","1987","1988","1989","1990","1992","1993","1994","1997"])
         password = "kQafrt#145LL"
         avatar = f"./avatars/{i}"
-        print(name,email,avatar)
+        creds = f"Account #{i},name: {name},email: {email},password: {password},\n"
+        print("---STARTING REGISTRATION: ", creds)
         create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy)
-        creds = f"Account #{i},name: {name},email: {email},password: {password}\n"
-        print(creds)
-        with open("accounts.txt", 'w') as file:
+        print("---USER CREATED: ", creds)
+        with open("tw_accounts.txt", 'w') as file:
             file.write(creds)
+            print(f"USER {i} SAVED")
