@@ -8,7 +8,7 @@ from fp.fp import FreeProxy
 # TODO: add logic to skip if capcha is unslved and start over (try-except stuff)
 
 def get_proxy():
-    proxy_url = FreeProxy().get()
+    proxy_url = FreeProxy(country_id=['US','CA','FR','NZ','SE','PT','CZ','NL','ES','SK','UK','PL','IT','DE','AT','JP'],https=True,rand=True,timeout=3).get()
     proxy_obj = {
         "server": proxy_url,
         "username": "",
@@ -19,14 +19,13 @@ def get_proxy():
 
 def random_user_agent():
 
-    user_agent = UserAgent(software_names=[SoftwareName.CHROME.value], hardware_types={HardwareType.COMPUTER.value}, limit=100).get_random_user_agent()
+    user_agent = UserAgent(software_names=[SoftwareName.CHROME.value], hardware_types=[HardwareType.COMPUTER.value], limit=100).get_random_user_agent()
+    
     return user_agent
 
-def get_random_name():
+def get_person():
     person = json.loads(requests.get("https://api.namefake.com/").text)
-    person_name = person["name"]
-    person_psw = person["password"]
-    return person_name
+    return person
 
 def get_email():
     with sync_playwright() as playwright:
@@ -55,9 +54,10 @@ def get_phone():
 
 def create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy):
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=False,proxy=proxy)
-        #context = browser.new_context()
-        context = browser.new_context(user_agent=agent) # would make sense to add user agent later
+        #browser = playwright.chromium.launch(headless=False,proxy=proxy) # proxy usage only end version
+        browser = playwright.chromium.launch(headless=False)
+        #context = browser.new_context(user_agent=agent) # would make sense to add user agent later
+        context = browser.new_context()
         page = context.new_page()
 
         page.goto('https://twitter.com/i/flow/signup')  # Twitter homepage URL
@@ -139,8 +139,11 @@ def create_twitter_account(name, email, month, day, year, password, avatar, agen
         
         # page.get_by_label("Audio").click()
         
+        button = page.locator('//*[@id="layers"]/html/body/div/div/div[2]/button/img')
+        button.click()
+        
         time.sleep(100)
-        "div.sc-99cwso-0.sc-1cbf51e-0.gMEQEa.fLfntv.navigation.box"
+        # "div.sc-99cwso-0.sc-1cbf51e-0.gMEQEa.fLfntv.navigation.box"
         
         
     
@@ -230,23 +233,23 @@ def create_twitter_account(name, email, month, day, year, password, avatar, agen
 if __name__ == "__main__":
     
     proxy = get_proxy()
-    print(proxy)
         
     num_accounts = 3
     
     for i in range(1,num_accounts): 
+        person = get_person()
         agent = random_user_agent()
-        name = get_random_name()
+        name = person["name"]
         email = get_email()
         month = random.choice(["January","April","May","June","December"])
         day = random.choice(["1","3","4","7","8","11","14","15","17","22","25"])
         year = random.choice(["1981","1983","1984","1987","1988","1989","1990","1992","1993","1994","1997"])
         password = "kQafrt#145LL"
         avatar = f"./avatars/{i}"
-        creds = f"Account #{i},name: {name},email: {email},password: {password},\n"
-        print("---STARTING REGISTRATION: ", creds)
+        creds = f"Account #{i},name:{name},email:{email},password:{password},\n"
+        print("---STARTING REGISTRATION: ",creds)
         create_twitter_account(name, email, month, day, year, password, avatar, agent, proxy)
-        print("---USER CREATED: ", creds)
+        print("---USER CREATED: ",creds)
         with open("tw_accounts.txt", 'w') as file:
             file.write(creds)
             print(f"USER {i} SAVED")
