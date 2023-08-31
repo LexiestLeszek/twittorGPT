@@ -3,6 +3,8 @@ import requests
 import os
 import time
 
+# this function generates a list of n avatars for your twitter accounts from AI-generated website
+
 # Create a set to store used image names
 used_names = set()
 
