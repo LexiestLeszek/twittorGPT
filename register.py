@@ -20,7 +20,6 @@ def get_proxy():
 def random_user_agent():
 
     user_agent = UserAgent(software_names=[SoftwareName.CHROME.value], hardware_types={HardwareType.COMPUTER.value}, limit=100).get_random_user_agent()
-    
     return user_agent
 
 def get_random_name():
