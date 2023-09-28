@@ -17,3 +17,5 @@ run: ``python3 twittorGPT.py``
 
 # Customisation
 The main idea is that language model writes a tweet based on the set of topics and suggestions. That way you can manage the overall theme of your tweets.
+
+# This app is made for educational purposes and author (developer) does not bear any responsibility for its usage by others
