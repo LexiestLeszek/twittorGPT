@@ -1,5 +1,6 @@
 # twittorGPT
-TwittorGPT is a useful tool for content producers that uses JS frontend API and GPP4ALL model to generate and post tweets. It uses tweety (https://github.com/mahrtayyab/tweety) library.
+TwittorGPT is a tool that uses GPP4ALL model to generate tweets and then uses JS frontend Twitter API to post them.
+It uses tweety (https://github.com/mahrtayyab/tweety) library.
 
 register.py automatically registers your account, but catcha solving is not yet done.
 
