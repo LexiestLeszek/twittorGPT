@@ -7,6 +7,10 @@ register.py automatically registers your account, but catcha solving is not yet 
 # Main workflow:
 
 # step 1
+
+Use img.py download image from thispersondoesnotexist. register.py automatically registers your account, but catcha solving is not yet done.
+
+# step 2
 Create .env variable with credentials from your twitter account:
 ``
 USERNAME=
